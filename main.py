@@ -2,8 +2,10 @@ import sqlite3 as sq
 
 capital_vowel_letters = ("А", "Е", "Ё", "И", "О", "У", "Э", "Ы", "Ю", "Я")
 capital_consonant_letters = ("Ш", "Ж", "Ч", "ТЩ", "Ц", "ТС", "С", "З", "Р")
-set_beech2 = ("А", "О", "У", "И", "Э")
 set_beech1 = ("А(Я)", "О(Ё)", "У(Ю)", "Ы(И)", "Э(Е)")
+set_beech2 = ("А", "О", "У", "И", "Э")
+set_beech3 = ("А", "О", "У", "Ы", "Е")
+set_beech4 = ("Я", "Ё", "Ю", "И", "Е")
 
 
 def choice_vow_letter_for_set_1(letter):
@@ -76,55 +78,59 @@ def check_separation_letters(object_Word):
         return False
 
 
-with sq.connect("main_base.db") as con:
-    cursor = con.cursor()
+def main():
+    with sq.connect("main_base.db") as con:
+        cursor = con.cursor()
 
-    cursor.execute("""CREATE TABLE IF NOT EXISTS vocabulary 
-                         (word TEXT,
-                         end TEXT,
-                         con_less TEXT,
-                         vow_less TEXT,
-                         vow_bef INTEGER,
-                         part_of_speech TEXT)""")
+        cursor.execute("""CREATE TABLE IF NOT EXISTS vocabulary 
+                             (type TEXT,
+                             word TEXT,
+                             end TEXT,
+                             con_less TEXT,
+                             vow_less TEXT,
+                             vow_bef INTEGER,
+                             part_of_speech TEXT)""")
 
-    input_list = [item for item in input().split()]
+        input_list = [item for item in input().split()]
 
-    if input_list[0] == "show":
-        for row in cursor.execute("SELECT * FROM vocabulary"):
-            print(row)
+        if input_list[0] == "show":
+            for row in cursor.execute("SELECT * FROM vocabulary"):
+                print(row)
 
-        exit()
+            exit()
 
-    object_Word = Word(make_few_words(input_list[0]), input_list[1])
+        object_Word = Word(make_few_words(input_list[0]), input_list[1])
 
-    if choice_base_letter(object_Word.con_less) == "Ш(Ж)":
-        if check_separation_letters(object_Word):
-            if object_Word.vow_less in set_beech2 and not object_Word.vow_bef:
-                cursor.execute("INSERT INTO vocabulary VALUES(?, ?, ?, ?, ?, ?)", [str(object_Word.words_and_end[0]),
-                                                                                   str(object_Word.words_and_end[1]),
-                                                                                   str(object_Word.con_less),
-                                                                                   str(object_Word.vow_less),
-                                                                                   int(object_Word.vow_bef),
-                                                                                   str(object_Word.part_of_speech)])
-        else:
-            if object_Word.vow_bef:
-                cursor.execute("INSERT INTO vocabulary VALUES(?, ?, ?, ?, ?, ?)", [str(object_Word.words_and_end[0]),
-                                                                                   str(object_Word.words_and_end[1]),
-                                                                                   str(object_Word.con_less),
-                                                                                   choice_vow_letter_for_set_1(
-                                                                                       str(object_Word.vow_less)),
-                                                                                   int(object_Word.vow_bef),
-                                                                                   str(object_Word.part_of_speech)])
+        def insert_in_db(type, vow_type):
+            cursor.execute("INSERT INTO vocabulary VALUES(?, ?, ?, ?, ?, ?, ?)", [type,
+                                                                                  str(object_Word.words_and_end[0]),
+                                                                                  str(object_Word.words_and_end[1]),
+                                                                                  str(object_Word.con_less),
+                                                                                  vow_type,
+                                                                                  int(object_Word.vow_bef),
+                                                                                  str(object_Word.part_of_speech)])
+
+        if choice_base_letter(object_Word.con_less) == "Ш(Ж)":
+            if check_separation_letters(object_Word):
+                if object_Word.vow_less in set_beech2 and not object_Word.vow_bef:
+                    insert_in_db("Ш(Ж)'", str(object_Word.vow_less))
             else:
-                cursor.execute("INSERT INTO vocabulary VALUES(?, ?, ?, ?, ?, ?)", [str(object_Word.words_and_end[0]),
-                                                                                   str(object_Word.words_and_end[1]),
-                                                                                   str(object_Word.con_less),
-                                                                                   str(object_Word.vow_less),
-                                                                                   int(object_Word.vow_bef),
-                                                                                   str(object_Word.part_of_speech)])
+                if object_Word.vow_bef and choice_vow_letter_for_set_1(str(object_Word.vow_less)) in set_beech1:
+                    insert_in_db("Ш(Ж)", choice_vow_letter_for_set_1(str(object_Word.vow_less)))
+                elif str(object_Word.vow_less) in set_beech2:
+                    insert_in_db("Ш(Ж)", str(object_Word.vow_less))
 
-    if choice_base_letter(object_Word.con_less) == "Ч(ТЩ)":
-        if check_separation_letters(object_Word):
-            pass
-        else:
-            pass
+        elif choice_base_letter(object_Word.con_less) == "Ч(ТЩ)":
+            if check_separation_letters(object_Word):
+                if object_Word.vow_less in set_beech4 and not object_Word.vow_bef:
+                    insert_in_db("Ч'", str(object_Word.vow_less))
+            else:
+                if object_Word.vow_bef and choice_vow_letter_for_set_1(str(object_Word.vow_less)) in set_beech1:
+                    insert_in_db("Ч(ТЩ)", choice_vow_letter_for_set_1(str(object_Word.vow_less)))
+                elif str(object_Word.vow_less) in set_beech3:
+                    insert_in_db("Ч(ТЩ)", str(object_Word.vow_less))
+
+
+if __name__ == "__main__":
+    while True:
+        main()
