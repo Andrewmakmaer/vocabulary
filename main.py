@@ -124,7 +124,6 @@ def main():
                     insert_in_db("Ш(Ж)'", str(object_Word.vow_less))
             else:
                 if object_Word.vow_bef and choice_vow_letter_for_set_1(str(object_Word.vow_less)) in set_beech1:
-                    overwrite_entry()
                     insert_in_db("Ш(Ж)", choice_vow_letter_for_set_1(str(object_Word.vow_less)))
                 elif str(object_Word.vow_less) in set_beech2:
                     insert_in_db("Ш(Ж)", str(object_Word.vow_less))
