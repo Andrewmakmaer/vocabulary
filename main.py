@@ -61,7 +61,7 @@ def check_capital_less(root):
 
 class Word:
     def __init__(self, words_and_end, part_of_speech):
-        self.words_and_end = words_and_end
+        self.words_and_end = list(words_and_end)
         self.vow_less, self.con_less, self.vow_bef = check_capital_less(words_and_end[0])
         self.part_of_speech = part_of_speech
 
@@ -102,6 +102,7 @@ def main():
         object_Word = Word(make_few_words(input_list[0]), input_list[1])
 
         def insert_in_db(type, vow_type):
+            overwrite_entry()
             cursor.execute("INSERT INTO vocabulary VALUES(?, ?, ?, ?, ?, ?, ?)", [type,
                                                                                   str(object_Word.words_and_end[0]),
                                                                                   str(object_Word.words_and_end[1]),
@@ -110,12 +111,20 @@ def main():
                                                                                   int(object_Word.vow_bef),
                                                                                   str(object_Word.part_of_speech)])
 
+        def overwrite_entry():
+            for item in cursor.execute("SELECT end FROM vocabulary WHERE word = ?",
+                                       [object_Word.words_and_end[0]]):
+                old_end = set(item[0][1:-1].replace(",", "").replace("'", "").split())
+                object_Word.words_and_end[1] = object_Word.words_and_end[1].union(old_end)
+                cursor.execute("DELETE FROM vocabulary WHERE word = ?", [object_Word.words_and_end[0]])
+
         if choice_base_letter(object_Word.con_less) == "Ш(Ж)":
             if check_separation_letters(object_Word):
                 if object_Word.vow_less in set_beech2 and not object_Word.vow_bef:
                     insert_in_db("Ш(Ж)'", str(object_Word.vow_less))
             else:
                 if object_Word.vow_bef and choice_vow_letter_for_set_1(str(object_Word.vow_less)) in set_beech1:
+                    overwrite_entry()
                     insert_in_db("Ш(Ж)", choice_vow_letter_for_set_1(str(object_Word.vow_less)))
                 elif str(object_Word.vow_less) in set_beech2:
                     insert_in_db("Ш(Ж)", str(object_Word.vow_less))
