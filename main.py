@@ -106,9 +106,8 @@ def main(input_1, input_2=None):
                                                                                      vow_less,
                                                                                      int(object_Word.vow_bef),
                                                                                      str(object_Word.part_of_speech)]):
-                result = sim_word[0] + sim_word[1]
+                result = result + (sim_word[0] + sim_word[1]) + "\n"
 
-            print(result)
             return result
 
         def insert_in_db(type, vow_type):
@@ -140,8 +139,8 @@ def main(input_1, input_2=None):
                     return insert_in_db("Ш(Ж)", str(object_Word.vow_less))
 
         elif choice_base_letter(object_Word.con_less) == "Ч(ТЩ)":
-            if check_separation_letters(object_Word):
-                if object_Word.vow_less in set_beech4 and not object_Word.vow_bef:
+            if not object_Word.vow_bef and check_separation_letters(object_Word):
+                if object_Word.vow_less in set_beech4:
                     return insert_in_db("Ч'", str(object_Word.vow_less))
             else:
                 if object_Word.vow_bef and choice_vow_letter_for_set_1(str(object_Word.vow_less)) in set_beech1:
@@ -171,4 +170,4 @@ def main(input_1, input_2=None):
 if __name__ == "__main__":
     while True:
         input_list = [item for item in input().split()]
-        print(main(input_list[0], input_list[1]))
+        print((main(input_list[0], input_list[1]))[:-1])
