@@ -4,7 +4,7 @@ capital_vowel_letters = ("А", "Е", "Ё", "И", "О", "У", "Э", "Ы", "Ю", "
 capital_consonant_letters = ("Ш", "Ж", "Ч", "ТЩ", "Ц", "ТС", "С", "З", "Р")
 set_beech1 = ("А(Я)", "О(Ё)", "У(Ю)", "Ы(И)", "Э(Е)")
 set_beech2 = ("А", "О", "У", "И", "Э")
-set_beech3 = ("А", "О", "У", "Ы", "Е")
+set_beech3 = ("А", "О", "У", "Ы", "Е", "Э")
 set_beech4 = ("Я", "Ё", "Ю", "И", "Е")
 
 
@@ -101,6 +101,14 @@ def main():
 
         object_Word = Word(make_few_words(input_list[0]), input_list[1])
 
+        def print_set_words(type, vow_less):
+            for sim_word in cursor.execute("""SELECT word, end FROM vocabulary WHERE type = ? AND
+                            vow_less = ? AND vow_bef = ? AND part_of_speech = ?""", [type,
+                                                                                     vow_less,
+                                                                                     int(object_Word.vow_bef),
+                                                                                     str(object_Word.part_of_speech)]):
+                print(sim_word[0]+sim_word[1])
+
         def insert_in_db(type, vow_type):
             overwrite_entry()
             cursor.execute("INSERT INTO vocabulary VALUES(?, ?, ?, ?, ?, ?, ?)", [type,
@@ -110,6 +118,7 @@ def main():
                                                                                   vow_type,
                                                                                   int(object_Word.vow_bef),
                                                                                   str(object_Word.part_of_speech)])
+            print_set_words(type, vow_type)
 
         def overwrite_entry():
             for item in cursor.execute("SELECT end FROM vocabulary WHERE word = ?",
@@ -137,6 +146,24 @@ def main():
                     insert_in_db("Ч(ТЩ)", choice_vow_letter_for_set_1(str(object_Word.vow_less)))
                 elif str(object_Word.vow_less) in set_beech3:
                     insert_in_db("Ч(ТЩ)", str(object_Word.vow_less))
+
+        # elif choice_base_letter(object_Word.con_less) == "С(З)":
+        #     if object_Word.vow_bef and choice_vow_letter_for_set_1(object_Word.vow_less) in set_beech1:
+        #         pass (wtf???)
+
+        elif choice_base_letter(object_Word.con_less) == "Ц(ТС)":
+            if object_Word.vow_bef:
+                insert_in_db("Ц(ТС)", choice_vow_letter_for_set_1(object_Word.vow_less))
+            elif not object_Word.vow_bef:
+                insert_in_db("Ц(ТС)", str(object_Word.vow_less))
+
+        elif choice_base_letter(object_Word.con_less) == "Р":
+            if object_Word.vow_bef:
+                insert_in_db("Р", object_Word.vow_less)
+            elif object_Word.vow_less in set_beech3:
+                insert_in_db("Р", object_Word.vow_less)
+            elif object_Word.vow_less in set_beech4:
+                insert_in_db("Р(ь)", object_Word.vow_less)
 
 
 if __name__ == "__main__":
