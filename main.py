@@ -4,7 +4,7 @@ capital_vowel_letters = ("А", "Е", "Ё", "И", "О", "У", "Э", "Ы", "Ю", "
 capital_consonant_letters = ("Ш", "Ж", "Ч", "ТЩ", "Ц", "ТС", "С", "З", "Р")
 set_beech1 = ("А(Я)", "О(Ё)", "У(Ю)", "Ы(И)", "Э(Е)")
 set_beech2 = ("А", "О", "У", "И", "Э")
-set_beech3 = ("А", "О", "У", "Ы", "Е", "Э")
+set_beech3 = ("А", "О", "У", "Ы", "Э")
 set_beech4 = ("Я", "Ё", "Ю", "И", "Е")
 
 
@@ -148,9 +148,13 @@ def main(input_1, input_2=None):
                 elif str(object_Word.vow_less) in set_beech3:
                     return insert_in_db("Ч(ТЩ)", str(object_Word.vow_less))
 
-        # elif choice_base_letter(object_Word.con_less) == "С(З)":
-        #     if object_Word.vow_bef and choice_vow_letter_for_set_1(object_Word.vow_less) in set_beech1:
-        #         pass (wtf???)
+        elif choice_base_letter(object_Word.con_less) == "С(З)":
+            if object_Word.vow_bef and choice_vow_letter_for_set_1(object_Word.vow_less) in set_beech1:
+                return insert_in_db("'С(ТС)", choice_vow_letter_for_set_1(object_Word.vow_less))
+            elif not object_Word.vow_bef and object_Word.vow_less in set_beech3:
+                return insert_in_db("С(ТС)'", object_Word.vow_less)
+            elif object_Word.vow_less in set_beech4:
+                return insert_in_db("С(ТС)Ь", object_Word.vow_less)
 
         elif choice_base_letter(object_Word.con_less) == "Ц(ТС)":
             if object_Word.vow_bef:
