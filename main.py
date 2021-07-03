@@ -24,7 +24,7 @@ def choice_vow_letter_for_set_1(letter):
 def make_few_words(words):
     root_word, end_word = words.split('(')
     end_word = end_word.replace(')', '')
-    list_of_end = end_word.split('/')
+    list_of_end = end_word.split('\\')
     return root_word, set(list_of_end)
 
 
@@ -174,4 +174,7 @@ def main(input_1, input_2=None):
 if __name__ == "__main__":
     while True:
         input_list = [item for item in input().split()]
-        print((main(input_list[0], input_list[1]))[:-1])
+        try:
+            print((main(input_list[0], input_list[1]))[:-1])
+        except:
+            print("Некоректный ввод или не удалось распределить слово:", str(input_list)[1:-1].replace("'", ""))
